@@ -44,5 +44,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Job::class);
     }
+        /**
+     * Histórico 1: Serviços que este usuário oferece ou realizou como PRESTADOR.
+     */
+    public function servicesOffered()
+    {
+        return $this->hasMany(Job::class, 'user_id');
+    }
+
+    /**
+     * Histórico 2: Serviços que este usuário buscou e abriu chat como CONTRATANTE.
+     */
+    public function servicesContracted()
+    {
+        return $this->hasMany(Job::class, 'contractor_id');
+    }
+
 
 }

@@ -13,7 +13,6 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Topo Responsivo */
         .navbar {
             background: #ffffff;
             padding: 15px 20px;
@@ -37,10 +36,10 @@
             gap: 10px;
         }
 
-        /* Grid Adaptável: Computador (2 colunas), Celular (1 coluna) */
+        /* O painel de filtros agora ocupa uma proporção mais harmônica */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 1fr 3fr;
             gap: 20px;
             max-width: 1200px;
             margin: 20px auto;
@@ -77,21 +76,15 @@
             margin-bottom: 6px;
         }
 
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group select {
             width: 100%;
             padding: 12px;
             border-radius: 6px;
             border: 1px solid #d1d5db;
             box-sizing: border-box;
             font-size: 14px;
-            font-family: inherit;
         }
 
-        .form-group textarea {
-            resize: vertical;
-        }
-
-        /* Botões */
         .btn-link {
             background-color: #4f46e5;
             color: white;
@@ -104,17 +97,17 @@
             cursor: pointer;
             display: inline-block;
             text-align: center;
-            box-sizing: border-box;
         }
 
         .btn-link:hover {
             background-color: #4338ca;
         }
 
-        .btn-chat {
-            background-color: #10b981;
+        /* Botão Ajustado para Visualizar Perfil Público */
+        .btn-perfil {
+            background-color: #4f46e5;
             color: white;
-            padding: 10px 14px;
+            padding: 10px 16px;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
@@ -122,8 +115,8 @@
             text-align: center;
         }
 
-        .btn-chat:hover {
-            background-color: #059669;
+        .btn-perfil:hover {
+            background-color: #4338ca;
         }
 
         .btn-logout {
@@ -135,7 +128,6 @@
             font-size: 14px;
         }
 
-        /* Feed de Serviços */
         .feed-container {
             display: flex;
             flex-direction: column;
@@ -149,28 +141,8 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             padding: 20px;
             border: 1px solid #e5e7eb;
-            position: relative;
-            word-wrap: break-word;
         }
 
-        .vaga-card.premium {
-            border-left: 5px solid #eab308;
-            background: #fefce8;
-        }
-
-        .badge-premium {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #eab308;
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        /* Estrelas de Avaliação */
         .estrelas-container {
             color: #eab308;
             font-size: 16px;
@@ -194,40 +166,23 @@
             font-weight: bold;
         }
 
-        .alert-sucesso {
-            background-color: #def7ec;
-            color: #03543f;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        /* 📱 RESPONSIVIDADE PARA CELULAR */
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-            
             .navbar {
                 flex-direction: column;
                 text-align: center;
             }
-
             .navbar-actions {
                 width: 100%;
                 justify-content: center;
-            }
-            
-            .vaga-card {
-                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Topo Customizado e Responsivo -->
     <nav class="navbar">
         <div class="logo">Pá-pum</div>
         <div class="navbar-actions">
@@ -238,13 +193,11 @@
             </form>
         </div>
     </nav>
-    <!-- Grid de Conteúdo -->
     <div class="dashboard-grid">
         
-        <!-- Lado Esquerdo: Filtros Dinâmicos e Cadastro de Serviço -->
+        <!-- Lado Esquerdo: Apenas Filtro -->
         <div>
-            <!-- Filtro Dinâmico -->
-            <div class="sidebar-panel" style="margin-bottom: 20px;">
+            <div class="sidebar-panel">
                 <h3>Filtrar Prestadores</h3>
                 <form method="GET" action="{{ route('dashboard') }}">
                     <div class="form-group">
@@ -258,49 +211,16 @@
                     </div>
                 </form>
             </div>
-
-            <!-- Publicação de Serviço Oferecido -->
-            <div class="sidebar-panel">
-                <h3>Divulgar Meu Serviço</h3>
-                <form method="POST" action="{{ route('jobs.store') }}">
-                    @csrf
-                    <div class="form-group">
-                        <label for="title">Título do seu Anúncio</label>
-                        <input type="text" id="title" name="title" required placeholder="Ex: Ofereço Serviço de Eletricista Geral">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="category">Sua Profissão / Categoria</label>
-                        <input type="text" id="category" name="category" required placeholder="Ex: Pedreiro, Manicure, Marceneiro">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description">Descrição do que você faz</label>
-                        <textarea id="description" name="description" rows="4" required placeholder="Descreva suas especialidades, região de atendimento e detalhes do serviço..."></textarea>
-                    </div>
-
-                    <button type="submit" class="btn-link" style="width: 100%;">Publicar Anúncio Grátis</button>
-                </form>
-            </div>
         </div>
 
-        <!-- Lado Direito: Feed Dinâmico de Serviços -->
+        <!-- Lado Direito: Feed Limpo de Prestadores -->
         <div class="feed-container">
             <h2 style="margin: 0; color: #1f2937; font-size: 22px;">Profissionais Disponíveis</h2>
 
-            @if(session('success'))
-                <div class="alert-sucesso">{{ session('success') }}</div>
-            @endif
-
             @forelse($jobs as $job)
-                <div class="vaga-card {{ $job->is_premium ? 'premium' : '' }}">
-                    @if($job->is_premium)
-                        <span class="badge-premium">DESTAQUE PREMIUM</span>
-                    @endif
-                    
+                <div class="vaga-card">
                     <h3 style="margin: 0; color: #1f2937; font-size: 20px;">{{ $job->title }}</h3>
                     
-                    <!-- Sistema de Estrelas Dinâmico -->
                     <div class="estrelas-container">
                         @php $rating = optional($job->user->profile)->rating_cache ?? 0; @endphp
                         @for($i = 1; $i <= 5; $i++)
@@ -314,7 +234,8 @@
                     
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                         <span class="vaga-categoria">{{ $job->category }}</span>
-                        <a href="#" class="btn-chat">Contratar (Chat)</a>
+                        <!-- Rota dinâmica que criaremos para abrir a visão do perfil público -->
+                        <a href="{{ route('profile.public.show', $job->user_id) }}" class="btn-perfil">Visualizar Perfil</a>
                     </div>
                 </div>
             @empty

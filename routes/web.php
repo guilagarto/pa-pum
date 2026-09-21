@@ -32,5 +32,10 @@ Route::middleware(['auth'])->group(function () {
 
     // ROTA QUE ESTAVA FALTANDO: Envio do formulário de nova vaga (POST)
     Route::post('/vagas', [JobController::class, 'store'])->name('jobs.store');
-});
+    // Rota para visualizar o perfil público de qualquer profissional (GET)
+    Route::get('/prestador/{id}', [ProfileCustomController::class, 'showPublic'])->name('profile.public.show');
+
+
+    });
+
 require __DIR__.'/auth.php';

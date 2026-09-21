@@ -72,4 +72,19 @@ class ProfileCustomController extends Controller
         // Retorna para a página com uma flag de sucesso na sessão para o feedback visual
         return redirect()->route('profile.custom.edit')->with('status', 'perfil-updated');
     }
+        /**
+     * Exibe o perfil público de um profissional para os contratantes.
+     */
+    public function showPublic($id)
+    {
+        // Busca o usuário prestador trazendo o perfil, as fotos do portfólio e os serviços dele
+        $professional = \App\Models\User::with(['profile.portfolioImages', 'servicesOffered'])
+            ->findOrFail($id);
+
+        // Garante que o perfil exista na tabela antes de renderizar
+        $profile = $professional->profile ?? \App\Models\Profile::create(['user_id' => $professional->id]);
+
+        return view('profile.public-show', compact('professional', 'profile'));
+    }
+
 }
