@@ -1,0 +1,134 @@
+/* Layout Geral da Dashboard */
+body {
+    background-color: #f3f4f6;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.dashboard-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.card-perfil {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    border: 1px solid #e5e7eb;
+}
+
+.card-perfil h2 {
+    color: #1f2937;
+    font-size: 24px;
+    margin: 0 0 8px 0;
+}
+
+.card-perfil p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 0 25px 0;
+}
+
+/* Formulário e Grupos de Input */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    color: #374151;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-group textarea:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-group input[type="file"] {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+/* Visualização das Imagens */
+.avatar-preview {
+    margin-bottom: 12px;
+}
+
+.avatar-preview img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4f46e5;
+}
+
+.grid-portfolio {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.grid-portfolio img {
+    width: 100%;
+    height: 85px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+/* Botões e Alertas de Feedback */
+.btn-salvar {
+    background-color: #4f46e5;
+    color: #ffffff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-salvar:hover {
+    background-color: #4338ca;
+}
+
+.alert-sucesso {
+    background-color: #def7ec;
+    color: #03543f;
+    padding: 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.alert-erro {
+    background-color: #fde8e8;
+    color: #9b1c1c;
+    padding: 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
