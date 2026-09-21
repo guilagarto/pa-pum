@@ -29,4 +29,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+        /**
+     * Relacionamento: O usuário possui um único perfil no Pá-pum.
+     */
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    /**
+     * Relacionamento: O usuário pode publicar vários anúncios de serviço.
+     */
+    public function jobs()
+    {
+        return $this->hasMany(Job::class);
+    }
+
 }

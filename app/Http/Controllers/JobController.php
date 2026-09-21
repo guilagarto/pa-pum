@@ -11,23 +11,30 @@ class JobController extends Controller
     /**
      * Exibe o Feed de Vagas na Dashboard
      */
-    public function index(Request $request)
-    {
-        // Busca as vagas em aberto trazendo junto os dados do usuário criador
-        $query = Job::with('user')->where('status', 'open');
+   public function index(Request $request)
+{
+    // 1. FILTRO DINÂMICO: Busca todas as categorias únicas já cadastradas no banco de dados
+    $categoriasDisponiveis = \App\Models\Job::where('status', 'open')
+                                           ->pluck('category')
+                                           ->unique()
+                                           ->filter();
 
-        // Aplica o filtro se o usuário selecionar uma categoria
-        if ($request->has('categoria') && $request->categoria != '') {
-            $query->where('category', $request->categoria);
-        }
+    // 2. Inicia a busca de serviços disponíveis
+    $query = Job::with('user.profile')->where('status', 'open');
 
-        // Ordena: Premium primeiro, depois as mais recentes
-        $jobs = $query->orderBy('is_premium', 'desc')
-                      ->orderBy('created_at', 'desc')
-                      ->get();
-
-        return view('dashboard', compact('jobs'));
+    // Aplica o filtro se o contratante escolher alguma categoria
+    if ($request->has('categoria') && $request->categoria != '') {
+        $query->where('category', $request->categoria);
     }
+
+    // Premium primeiro, depois os anúncios mais recentes
+    $jobs = $query->orderBy('is_premium', 'desc')
+                  ->orderBy('created_at', 'desc')
+                  ->get();
+
+    return view('dashboard', compact('jobs', 'categoriasDisponiveis'));
+}
+
 
     /**
      * Salva uma nova vaga no banco de dados
