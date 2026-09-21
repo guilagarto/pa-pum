@@ -27,12 +27,17 @@ class ProfileCustomController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        $profile = $user->profile;
+        
+        // TRAVA DE SEGURANÇA DEFINITIVA: Se o perfil não existir por algum motivo, ele cria na hora
+        $profile = Profile::firstOrCreate(
+            ['user_id' => $user->id],
+            ['bio' => null, 'profile_picture' => null]
+        );
 
-        // Regras de validação para segurança do MVP
+        // Regras de validação estritas para a segurança do MVP
         $request->validate([
             'bio' => 'nullable|string|max:1000',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Máximo 2MB por arquivo
             'portfolio_images.*' => 'image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
@@ -50,21 +55,21 @@ class ProfileCustomController extends Controller
             $currentImagesCount = $profile->portfolioImages()->count();
             $uploadedImages = $request->file('portfolio_images');
 
-            // Bloqueia se o total ultrapassar 5 fotos
+            // Bloqueia a requisição se a soma das fotos antigas com as novas estourar o limite de 5
             if ($currentImagesCount + count($uploadedImages) > 5) {
                 return redirect()->back()->withErrors([
                     'portfolio_images' => 'Limite atingido! Seu portfólio pode ter no máximo 5 fotos no total.'
                 ]);
             }
 
-            // Salva cada foto nova na pasta pública de portfólios
+            // Salva cada foto nova na pasta de armazenamento público do Laravel
             foreach ($uploadedImages as $image) {
                 $imagePath = $image->store('portfolios', 'public');
                 $profile->portfolioImages()->create(['image_path' => $imagePath]);
             }
         }
 
-        // Retorna para a página com uma mensagem de sucesso
+        // Retorna para a página com uma flag de sucesso na sessão para o feedback visual
         return redirect()->route('profile.custom.edit')->with('status', 'perfil-updated');
     }
 }

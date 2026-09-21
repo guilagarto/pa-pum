@@ -3,6 +3,10 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileCustomController;
+use App\Http\Controllers\JobController;
+
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -24,6 +28,9 @@ Route::middleware(['auth'])->group(function () {
     
     // Rota que recebe os dados do formulário e faz o upload (PUT)
     Route::put('/perfil', [ProfileCustomController::class, 'update'])->name('profile.custom.update');
-    
+    Route::get('/dashboard', [JobController::class, 'index'])->name('dashboard');
+
+    // ROTA QUE ESTAVA FALTANDO: Envio do formulário de nova vaga (POST)
+    Route::post('/vagas', [JobController::class, 'store'])->name('jobs.store');
 });
 require __DIR__.'/auth.php';
