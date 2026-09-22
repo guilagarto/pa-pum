@@ -122,8 +122,8 @@
         <button type="button" id="btn-send" class="btn-enviar">Enviar</button>
     </footer>
 
-    <script>
-        const jobId = "{{ \$job->id }}";
+       <script>
+        const jobId = "{{ $job->id }}";
         const meuId = {{ Auth::id() }};
         const chatBox = document.getElementById('chat-box');
         const msgInput = document.getElementById('msg-input');
@@ -131,7 +131,7 @@
 
         async function carregarMensagens() {
             try {
-                const response = await fetch(`/chat/${jobId}/mensagens`);
+                const response = await fetch('/chat/' + jobId + '/mensagens');
                 if (!response.ok) return;
                 
                 const mensagens = await response.json();
@@ -139,7 +139,7 @@
 
                 mensagens.forEach(msg => {
                     const classeDono = (msg.sender_id === meuId) ? 'me' : 'other';
-                    html += `<div class="bubble ${classeDono}">${msg.message}</div>`;
+                    html += '<div class="bubble ' + classeDono + '">' + msg.message + '</div>';
                 });
 
                 if (chatBox.innerHTML !== html) {
@@ -158,7 +158,7 @@
             msgInput.value = '';
 
             try {
-                await fetch(`/chat/${jobId}/enviar`, {
+                await fetch('/chat/' + jobId + '/enviar', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -180,6 +180,7 @@
         carregarMensagens();
         setInterval(carregarMensagens, 3000);
     </script>
+
 
 </body>
 </html>
