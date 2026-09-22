@@ -302,11 +302,13 @@
                                     <img src="{{ asset('storage/' . $image->image_path) }}" alt="Trabalho do portfólio">
                                     
                                     <!-- Formulário de Exclusão da Imagem Individual -->
+                                                                       <!-- Formulário Corrigido de Exclusão da Imagem Individual -->
                                     <form method="POST" action="{{ route('profile.image.destroy', $image->id) }}" onsubmit="return confirm('Deseja remover esta foto do seu portfólio?')" style="margin:0;">
                                         @csrf
-                                        @method('DELETE')
+                                        <!-- Removemos a linha do @method('DELETE') daqui -->
                                         <button type="submit" class="btn-deletar-foto" title="Excluir foto">X</button>
                                     </form>
+
                                 </div>
                             @endforeach
                         </div>
