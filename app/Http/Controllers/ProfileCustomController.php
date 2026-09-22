@@ -89,26 +89,30 @@ class ProfileCustomController extends Controller
         /**
      * Remove uma imagem específica do portfólio do prestador.
      */
+        /**
+     * Remove uma imagem específica do portfólio do prestador.
+     */
     public function destroyImage($id)
     {
-        // Busca a imagem ou retorna 404
+        // Busca a imagem trazendo o perfil para validação de dono
         $image = PortfolioImage::with('profile')->findOrFail($id);
 
-        // REGRA DE SEGURANÇA: Garante que a foto pertence ao perfil do usuário logado
+        // Garante que o usuário logado só apague fotos do próprio perfil
         if ($image->profile->user_id !== Auth::id()) {
             abort(403, 'Ação não autorizada.');
         }
 
-        // 1. Apaga o arquivo físico guardado na pasta storage
+        // 1. Apaga o arquivo físico da pasta storage pública
         if (\Illuminate\Support\Facades\Storage::disk('public')->exists($image->image_path)) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_path);
         }
 
-        // 2. Apaga o registro do banco de dados
+        // 2. Remove o registro do banco de dados
         $image->delete();
 
-        return redirect()->back()->with('success', 'Foto do portfólio removida com sucesso!');
+        return redirect()->route('profile.custom.edit')->with('success', 'Foto do portfólio removida com sucesso!');
     }
+
 
 
 }

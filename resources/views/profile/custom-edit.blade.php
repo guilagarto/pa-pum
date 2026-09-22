@@ -98,15 +98,45 @@
             margin: 15px 0;
         }
 
-        .grid-portfolio img {
+        .portfolio-item-wrapper {
+            position: relative;
+            display: inline-block;
             width: 100%;
             height: 85px;
+        }
+
+        .portfolio-item-wrapper img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             border-radius: 6px;
             border: 1px solid #e5e7eb;
         }
 
-        /* Botões */
+        .btn-deletar-foto {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 22px;
+            height: 22px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+
+        .btn-deletar-foto:hover {
+            background-color: rgba(220, 38, 38, 1);
+        }
+
         .btn-primario {
             background-color: #4f46e5;
             color: #ffffff;
@@ -132,7 +162,6 @@
             font-size: 15px;
         }
 
-        /* Tabela e Linhas de Ações de Serviços */
         .servico-item {
             background: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -195,7 +224,7 @@
             padding: 12px;
             border-radius: 6px;
             font-size: 14px;
-            margin-top: 15px;
+            margin-bottom: 20px;
         }
 
         .alert-erro {
@@ -206,46 +235,6 @@
             font-size: 14px;
             margin-bottom: 20px;
         }
-                /* Ajuste do Grid do Portfólio com Botão Sobreposto */
-        .portfolio-item-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-            height: 85px;
-        }
-
-        .portfolio-item-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .btn-deletar-foto {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background-color: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 22px;
-            height: 22px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: background 0.2s;
-        }
-
-        .btn-deletar-foto:hover {
-            background-color: rgba(220, 38, 38, 1);
-        }
-
     </style>
 </head>
 <body>
@@ -258,10 +247,10 @@
     <div class="container">
         
         @if(session('success'))
-            <div class="alert-sucesso" style="margin-bottom: 20px;">{{ session('success') }}</div>
+            <div class="alert-sucesso">{{ session('success') }}</div>
         @endif
 
-        <!-- SEÇÃO 1: Dados Profissionais (Bio e Portfólio) -->
+        <!-- SEÇÃO 1: Dados do Perfil -->
         <div class="card-secao">
             <h2>Dados do meu Perfil</h2>
             <p>Atualize sua biografia profissional e gerencie as fotos do seu portfólio de trabalho.</p>
@@ -293,30 +282,21 @@
                     <textarea id="bio" name="bio" rows="4" placeholder="Descreva sua experiência geral para os contratantes...">{{ old('bio', $profile->bio) }}</textarea>
                 </div>
 
-                                <div class="form-group">
+                <div class="form-group">
                     <label>Fotos do Portfólio (Máximo 5 fotos no total)</label>
                     @if($profile->portfolioImages->count() > 0)
                         <div class="grid-portfolio">
                             @foreach($profile->portfolioImages as $image)
                                 <div class="portfolio-item-wrapper">
                                     <img src="{{ asset('storage/' . $image->image_path) }}" alt="Trabalho do portfólio">
-                                    
-                                    <!-- Formulário de Exclusão da Imagem Individual -->
-                                                                       <!-- Formulário Corrigido de Exclusão da Imagem Individual -->
-                                    <form method="POST" action="{{ route('profile.image.destroy', $image->id) }}" onsubmit="return confirm('Deseja remover esta foto do seu portfólio?')" style="margin:0;">
-                                        @csrf
-                                        <!-- Removemos a linha do @method('DELETE') daqui -->
-                                        <button type="submit" class="btn-deletar-foto" title="Excluir foto">X</button>
-                                    </form>
-
+                                    <button type="submit" form="delete-photo-{{ $image->id }}" class="btn-deletar-foto" title="Excluir foto">X</button>
                                 </div>
                             @endforeach
                         </div>
                     @endif
                     <input id="portfolio_images" name="portfolio_images[]" type="file" multiple accept="image/*">
-                    <p style="font-size: 12px; color: #6b7280; mt-1;">Você possui {{ $profile->portfolioImages->count() }} de 5 fotos salvas.</p>
+                    <p style="font-size: 12px; color: #6b7280; margin-top: 5px;">Você possui {{ $profile->portfolioImages->count() }} de 5 fotos salvas.</p>
                 </div>
-
 
                 <button type="submit" class="btn-primario">Salvar Perfil</button>
                 @if (session('status') === 'perfil-updated')
@@ -329,7 +309,6 @@
             <h2>Meus Serviços Anunciados</h2>
             <p>Anuncie novos trabalhos ou gerencie, edite e exclua os anúncios ativos que aparecem no feed.</p>
 
-            <!-- Lista de Serviços Atuais -->
             <div style="margin-bottom: 25px;">
                 <h3 style="font-size: 16px; color: #374151; margin-bottom: 10px;">Anúncios Ativos</h3>
                 @forelse(Auth::user()->servicesOffered()->where('status', 'open')->get() as $servico)
@@ -339,10 +318,8 @@
                             <span>{{ $servico->category }}</span>
                         </div>
                         <div class="acoes-buttons">
-                            <!-- Botão de Editar que preenche o formulário via JavaScript abaixo -->
                             <button class="btn-editar" onclick="carregarEdicao({{ $servico->id }}, '{{ $servico->title }}', '{{ $servico->category }}', '{{ e($servico->description) }}')">Editar</button>
                             
-                            <!-- Formulário de Exclusão Direta -->
                             <form method="POST" action="{{ route('jobs.destroy', $servico->id) }}" onsubmit="return confirm('Deseja mesmo remover este anúncio de serviço?')" style="margin: 0;">
                                 @csrf
                                 @method('DELETE')
@@ -355,26 +332,24 @@
                 @endforelse
             </div>
 
-            <!-- Formulário Unificado: Criação e Edição Dinâmica -->
             <h3 id="form-titulo" style="font-size: 16px; color: #374151; margin-bottom: 15px; border-top: 1px solid #f3f4f6; padding-top: 15px;">Cadastrar Novo Serviço</h3>
             
             <form id="form-servico" method="POST" action="{{ route('jobs.store') }}">
                 @csrf
-                <!-- Campo oculto para mudar o método para PUT dinamicamente quando for editar -->
                 <div id="metodo-extra"></div>
 
                 <div class="form-group">
-                    <label for="title">Título do Anúncio de Serviço</label>
+                    <label for="title_servico">Título do Anúncio de Serviço</label>
                     <input type="text" id="title_servico" name="title" required placeholder="Ex: Ofereço Instalação Elétrica Residencial Completa">
                 </div>
 
                 <div class="form-group">
-                    <label for="category">Profissão / Categoria</label>
+                    <label for="category_servico">Profissão / Categoria</label>
                     <input type="text" id="category_servico" name="category" required placeholder="Ex: Eletricista, Marceneiro, Pedreiro">
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Descrição detalhada do Serviço</label>
+                    <label for="description_servico">Descrição detalhada do Serviço</label>
                     <textarea id="description_servico" name="description" rows="4" required placeholder="Descreva os serviços que realiza, ferramentas que possui e sua região de atendimento..."></textarea>
                 </div>
 
@@ -387,32 +362,30 @@
 
     </div>
 
-    <!-- Script Inteligente: Alterna o formulário entre Criação e Edição instantaneamente -->
+    <!-- Formulários isolados para exclusão das imagens -->
+    @if($profile->portfolioImages->count() > 0)
+        @foreach($profile->portfolioImages as $image)
+            <form id="delete-photo-{{ $image->id }}" method="POST" action="{{ route('profile.image.destroy', $image->id) }}" onsubmit="return confirm('Deseja remover esta foto do seu portfólio?')" style="display: none;">
+                @csrf
+            </form>
+        @endforeach
+    @endif
+
     <script>
         function carregarEdicao(id, titulo, categoria, descricao) {
-            // 1. Altera os textos informativos
             document.getElementById('form-titulo').innerText = "Editar Meu Serviço";
             document.getElementById('btn-submit-servico').innerText = "Salvar Alterações do Serviço";
             document.getElementById('btn-submit-servico').style.backgroundColor = "#eab308";
             document.getElementById('btn-cancelar').style.display = "inline-block";
-
-            // 2. Muda a rota de destino do formulário para a rota de update
             document.getElementById('form-servico').action = "/vagas/" + id;
-
-            // 3. Injeta a tag Blade @method('PUT') oculta de forma nativa
             document.getElementById('metodo-extra').innerHTML = '<input type="hidden" name="_method" value="PUT">';
-
-            // 4. Preenche os inputs com os dados originais do anúncio
             document.getElementById('title_servico').value = titulo;
             document.getElementById('category_servico').value = categoria;
             document.getElementById('description_servico').value = descricao;
-
-            // Rola a tela até o formulário de forma suave
             document.getElementById('form-titulo').scrollIntoView({ behavior: 'smooth' });
         }
 
         function cancelarEdicao() {
-            // Reseta o formulário para o estado padrão de criação grátis
             document.getElementById('form-titulo').innerText = "Cadastrar Novo Serviço";
             document.getElementById('btn-submit-servico').innerText = "Publicar Serviço";
             document.getElementById('btn-submit-servico').style.backgroundColor = "#10b981";
