@@ -186,6 +186,7 @@
             @endif
 
             <!-- FORMULÁRIO CORRIGIDO: Cria o vínculo de histórico e abre o chat -->
+                       <!-- FORMULÁRIO BLINDADO: Se não houver serviço cadastrado, envia o ID 0 com segurança -->
             <form method="POST" action="{{ route('jobs.contract', $professional->servicesOffered->first()->id ?? 0) }}">
                 @csrf
                 @if($professional->servicesOffered->where('status', 'open')->count() > 0)
@@ -198,6 +199,7 @@
                     </button>
                 @endif
             </form>
+
 
         </div>
     </div>
