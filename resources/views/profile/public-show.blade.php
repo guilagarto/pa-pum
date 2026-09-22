@@ -174,7 +174,7 @@
                 {{ $profile->bio ?? 'Este profissional ainda não preencheu a descrição do seu perfil.' }}
             </div>
 
-            <div class="section-title">Portfólio de Trabalhos</div>
+                       <div class="section-title">Portfólio de Trabalhos</div>
             @if($profile->portfolioImages->count() > 0)
                 <div class="grid-portfolio">
                     @foreach($profile->portfolioImages as $image)
@@ -182,11 +182,22 @@
                     @endforeach
                 </div>
             @else
-                <p style="color: #6b7280; font-size: 14px; italic;">Nenhuma foto de trabalho adicionada ao portfólio ainda.</p>
+                <p style="color: #6b7280; font-size: 14px; font-style: italic; margin-bottom: 25px;">Nenhuma foto de trabalho adicionada ao portfólio ainda.</p>
             @endif
 
-            <!-- Botão de Ação que fará o vínculo e abrirá o chat no próximo passo -->
-            <a href="#" class="btn-acao-chat">Iniciar Conversa no Chat (Contratar)</a>
+            <!-- FORMULÁRIO CORRIGIDO: Cria o vínculo de histórico e abre o chat -->
+            <form method="POST" action="{{ route('jobs.contract', $professional->servicesOffered->first()->id ?? 0) }}">
+                @csrf
+                @if($professional->servicesOffered->where('status', 'open')->count() > 0)
+                    <button type="submit" class="btn-acao-chat" style="border: none; width: 100%; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer;">
+                        Iniciar Conversa no Chat (Contratar)
+                    </button>
+                @else
+                    <button type="button" class="btn-acao-chat" style="background-color: #9ca3af; cursor: not-allowed; border: none; width: 100%;" disabled>
+                        Nenhum serviço ativo para contratar
+                    </button>
+                @endif
+            </form>
 
         </div>
     </div>

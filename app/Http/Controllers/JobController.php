@@ -19,7 +19,7 @@ class JobController extends Controller
                                     ->unique()
                                     ->filter();
 
-        // Inicia a busca trazenda os dados vinculados do perfil de cada usuário
+        // Inicia a busca trazendo os dados vinculados do perfil de cada usuário
         $query = Job::with('user.profile')->where('status', 'open');
 
         // Aplica o filtro de categorias caso o contratante selecione alguma
@@ -58,11 +58,32 @@ class JobController extends Controller
     }
 
     /**
+     * Ação do Botão de Chat: Vincula o contratante ao serviço e joga direto na sala de conversa.
+     */
+    public function startContract($id)
+    {
+        $job = Job::findOrFail($id);
+
+        // Segurança: Impede que o profissional contrate o seu próprio anúncio
+        if ($job->user_id === Auth::id()) {
+            return redirect()->back()->withErrors(['error' => 'Você não pode contratar o seu próprio serviço!']);
+        }
+
+        // Carimba o ID do usuário atual como o contratante oficial desse serviço
+        $job->update([
+            'contractor_id' => Auth::id(),
+            'status' => 'in_progress' // Muda o status para em andamento
+        ]);
+
+        // Redireciona na hora para a sala de chat que criamos!
+        return redirect()->route('chat.show', $job->id)->with('success', 'Conversa iniciada!');
+    }
+
+    /**
      * Salva as alterações de um anúncio de serviço existente.
      */
     public function update(Request $request, $id)
     {
-        // Busca a vaga ou retorna erro 404 caso não encontre
         $job = Job::findOrFail($id);
 
         // REGRA DE SEGURANÇA: Bloqueia caso o usuário tente editar o serviço de outra pessoa
@@ -97,7 +118,6 @@ class JobController extends Controller
             abort(403, 'Ação não autorizada.');
         }
 
-        // Deleta o registro do banco de dados
         $job->delete();
 
         return redirect()->route('profile.custom.edit')->with('success', 'Anúncio de serviço removido com sucesso!');
