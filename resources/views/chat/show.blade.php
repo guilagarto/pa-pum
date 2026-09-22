@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat com {{ \$outroUsuario->name }} - Pá-pum</title>
+    <title>Chat com {{ $outroUsuario->name }} - Pá-pum</title>
     
     <style>
         body {
@@ -109,8 +109,8 @@
 
     <header class="chat-header">
         <div>
-            <h2>Conversa com: <strong>{{ \$outroUsuario->name }}</strong></h2>
-            <small style="color: #6b7280;">Serviço: {{ \$job->title }}</small>
+            <h2>Conversa com: <strong>{{ $outroUsuario->name }}</strong></h2>
+            <small style="color: #6b7280;">Serviço: {{ $job->title }}</small>
         </div>
         <a href="{{ route('profile.custom.edit') }}" class="btn-voltar">← Sair do Chat</a>
     </header>

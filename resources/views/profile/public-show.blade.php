@@ -189,15 +189,21 @@
                        <!-- FORMULÁRIO BLINDADO: Se não houver serviço cadastrado, envia o ID 0 com segurança -->
             <form method="POST" action="{{ route('jobs.contract', $professional->servicesOffered->first()->id ?? 0) }}">
                 @csrf
-                @if($professional->servicesOffered->where('status', 'open')->count() > 0)
-                    <button type="submit" class="btn-acao-chat" style="border: none; width: 100%; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer;">
-                        Iniciar Conversa no Chat (Contratar)
-                    </button>
-                @else
-                    <button type="button" class="btn-acao-chat" style="background-color: #9ca3af; cursor: not-allowed; border: none; width: 100%;" disabled>
-                        Nenhum serviço ativo para contratar
-                    </button>
-                @endif
+               @if($professional->servicesOffered->where('status', 'open')->count() > 0)
+    @php 
+        // Pega o ID do serviço ativo com segurança
+        $jobId = $professional->servicesOffered->where('status', 'open')->first()->id ?? 0;
+    @endphp
+    
+    <a href="{{ route('chat.show', ['job_id' => $jobId]) }}" class="btn-acao-chat" style="display: block; text-align: center; border: none; width: 100%; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; line-height: 40px; background-color: #4f46e5; color: white; border-radius: 6px;">
+        Iniciar Conversa no Chat (Contratar)
+    </a>
+@else
+    <button type="button" class="btn-acao-chat" style="background-color: #9ca3af; cursor: not-allowed; border: none; width: 100%; font-size: 16px; font-weight: bold; padding: 10px 0; color: white; border-radius: 6px;" disabled>
+        Nenhum serviço ativo para contratar
+    </button>
+@endif
+
             </form>
 
 
