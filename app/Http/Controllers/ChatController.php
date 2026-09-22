@@ -11,62 +11,85 @@ use App\Models\User;
 class ChatController extends Controller
 {
     /**
+     * Lista todas as conversas/vagas ativas do usuário logado.
+     * Rota correspondente: /conversas
+     */
+    public function index()
+    {
+        $usuarioLogado = Auth::user();
+
+        // Busca todas as vagas onde o usuário logado é o criador (user_id) OU o contratado (contractor_id)
+        $jobs = Job::where('user_id', $usuarioLogado->id)
+                   ->orWhere('contractor_id', $usuarioLogado->id) 
+                   ->orderBy('updated_at', 'desc')
+                   ->get();
+
+        // Associa quem é o outro participante de cada conversa para exibir na lista
+        foreach ($jobs as $job) {
+            if ($usuarioLogado->id === $job->user_id) {
+                // Se eu sou o criador da vaga, o outro usuário é o profissional contratado
+                $job->outroUsuario = User::find($job->contractor_id) ?? User::where('id', '!=', $usuarioLogado->id)->first() ?? new User(['name' => 'Prestador']);
+            } else {
+                // Se eu não sou o criador, o outro usuário é o dono da vaga
+                $job->outroUsuario = User::find($job->user_id) ?? new User(['name' => 'Contratante']);
+            }
+        }
+
+        return view('chat.index', compact('jobs'));
+    }
+
+    /**
      * Abre a tela visual do Chat entre o Contratante e o Prestador.
      * Rota correspondente: /chat/{job_id}
      */
     public function show($job_id)
     {
-        // 1. Busca a vaga (job) com segurança ou retorna 404 se não existir
         $job = Job::findOrFail($job_id);
         $usuarioLogado = Auth::user();
 
-        // 2. Define dinamicamente quem é o "outro usuário" da conversa
         if ($usuarioLogado->id === $job->user_id) {
-            // Se eu sou o dono da vaga (contratante), o outro usuário é quem foi contratado
-            $providerId = $job->provider_id ?? $job->professional_id ?? $job->prestador_id ?? 0;
+            // Se eu criei a vaga, procuro o profissional na coluna contractor_id
+            $outroUsuario = User::find($job->contractor_id);
             
-            // Tratamento para vaga de teste: se o ID for 0 ou nulo, busca outro usuário válido no banco
-            if (!$providerId || $providerId == 0) {
+            // Tratamento para vaga de teste (caso contractor_id esteja NULL no banco)
+            if (!$outroUsuario) {
                 $outroUsuario = User::where('id', '!=', $usuarioLogado->id)->first() ?? User::find(1);
-            } else {
-                $outroUsuario = User::find($providerId);
             }
         } else {
-            // Se eu não sou o dono da vaga, o outro usuário obrigatoriamente é o dono dela
             $outroUsuario = User::find($job->user_id);
         }
 
-        // 3. Fallback final de segurança para a view não quebrar se o banco estiver totalmente vazio
         if (!$outroUsuario) {
             $outroUsuario = new User(['id' => 1, 'name' => 'Usuário de Teste']);
         }
 
-        // 4. Retorna a view enviando as variáveis estruturadas
-        return view('chat.show', compact('job', 'outroUsuario'));
+            // --- Adicione isso dentro da função show() antes do return ---
+    Message::where('job_id', $job_id)
+           ->where('receiver_id', $usuarioLogado->id)
+           ->where('is_read', false)
+           ->update(['is_read' => true]);
+
+    return view('chat.show', compact('job', 'outroUsuario'));
+
     }
 
     /**
      * Rota de API (AJAX/Fetch) que o JavaScript chama de 3 em 3 segundos para atualizar a tela
-     * Rota correspondente: /chat/{job_id}/mensagens
      */
     public function fetchMessages($job_id)
     {
-        // Busca todas as mensagens vinculadas a essa vaga ordenadas por tempo
         $messages = Message::where('job_id', $job_id)
                            ->orderBy('created_at', 'asc')
                            ->get();
 
-        // Retorna a lista em formato JSON puro para o JavaScript renderizar os balões
         return response()->json($messages);
     }
 
     /**
      * Rota de API (AJAX/Fetch) para gravar as mensagens digitadas no banco de dados
-     * Rota correspondente: /chat/{job_id}/enviar (Método POST)
      */
     public function sendMessage(Request $request)
     {
-        // 1. Valida se os dados básicos de texto e relacionamento foram preenchidos
         $request->validate([
             'job_id' => 'required',
             'message' => 'required|string'
@@ -75,20 +98,18 @@ class ChatController extends Controller
         $job = Job::findOrFail($request->job_id);
         $usuarioLogado = Auth::user();
 
-        // 2. Define quem é o destinatário (receiver_id) da mensagem
+        // Define quem vai receber a mensagem usando a coluna correta
         if ($usuarioLogado->id === $job->user_id) {
-            $receiverId = $job->provider_id ?? $job->professional_id ?? $job->prestador_id ?? 0;
+            $receiverId = $job->contractor_id;
         } else {
             $receiverId = $job->user_id;
         }
 
-        // CORREÇÃO CRUCIAL: Se o ID for 0 ou nulo (vaga de teste), evita a violação de chave estrangeira
-        // Descobre um ID de usuário real e ativo no banco para o MySQL aceitar o INSERT
-        if (!$receiverId || $receiverId == 0) {
+        // Segurança para vagas de teste vazias: evita erro de chave estrangeira (Integrity Constraint Violation)
+        if (!$receiverId) {
             $receiverId = User::where('id', '!=', $usuarioLogado->id)->first()->id ?? 1;
         }
 
-        // 3. Persiste a mensagem de forma segura usando Mass Assignment
         $novaMensagem = Message::create([
             'job_id' => $request->job_id,
             'sender_id' => $usuarioLogado->id,
@@ -97,10 +118,24 @@ class ChatController extends Controller
             'is_read' => false
         ]);
 
-        // 4. Retorna resposta HTTP de sucesso para o JavaScript limpar o campo de texto
         return response()->json([
             'status' => 'Mensagem enviada com sucesso!', 
             'data' => $novaMensagem
         ]);
     }
+        /**
+     * Retorna a quantidade de mensagens não lidas para o usuário logado.
+     */
+    public static function getUnreadCount()
+    {
+        if (!Auth::check()) {
+            return 0;
+        }
+
+        // Conta quantas mensagens foram enviadas PARA o usuário logado e ainda não foram lidas
+        return Message::where('receiver_id', Auth::id())
+                      ->where('is_read', false)
+                      ->count();
+    }
+
 }

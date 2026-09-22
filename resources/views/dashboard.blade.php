@@ -187,6 +187,26 @@
         <div class="logo">Pá-pum</div>
         <div class="navbar-actions">
             <a href="{{ route('profile.custom.edit') }}" class="btn-link">Meu Perfil & Portfólio</a>
+            <!-- LINK DO CHAT -->
+@php
+    // Chama a função que criamos para pegar a quantidade de mensagens não lidas
+    $naoLidas = \App\Http\Controllers\ChatController::getUnreadCount();
+@endphp
+
+<!-- LINK DO CHAT COM CONTADOR DINÂMICO -->
+<a href="{{ route('chat.index') }}" style="margin-right: 15px; color: #4f46e5; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; position: relative;">
+    💬 Mensagens
+    
+    @if($naoLidas > 0)
+        <span style="background-color: #ef4444; color: white; font-size: 11px; font-weight: bold; border-radius: 9999px; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+            {{ $naoLidas }}
+        </span>
+    @endif
+</a>
+
+
+<!-- Seu botão / link de SAIR existente fica aqui abaixo -->
+
             <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
                 @csrf
                 <button type="submit" class="btn-logout">Sair</button>

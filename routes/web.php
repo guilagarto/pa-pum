@@ -30,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/prestador/{id}', [ProfileCustomController::class, 'showPublic'])->name('profile.public.show');
 
     // 📋 ROTAS DO CHAT E HISTÓRICO (O que estava faltando!):
+    Route::get('/conversas', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/vagas/contratar/{id}', [JobController::class, 'startContract'])->name('jobs.contract');
     Route::get('/chat/{job_id}', [ChatController::class, 'show'])->name('chat.show');
     Route::get('/chat/{job_id}/mensagens', [ChatController::class, 'fetchMessages'])->name('chat.fetch');
