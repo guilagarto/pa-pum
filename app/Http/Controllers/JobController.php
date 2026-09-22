@@ -9,35 +9,34 @@ use App\Models\Job;
 class JobController extends Controller
 {
     /**
-     * Exibe o Feed de Vagas na Dashboard
+     * Exibe o Feed de Prestadores na Dashboard.
      */
-   public function index(Request $request)
-{
-    // 1. FILTRO DINÂMICO: Busca todas as categorias únicas já cadastradas no banco de dados
-    $categoriasDisponiveis = \App\Models\Job::where('status', 'open')
-                                           ->pluck('category')
-                                           ->unique()
-                                           ->filter();
+    public function index(Request $request)
+    {
+        // Coleta todas as categorias únicas ativas no banco para alimentar o filtro dinâmico
+        $categoriasDisponiveis = Job::where('status', 'open')
+                                    ->pluck('category')
+                                    ->unique()
+                                    ->filter();
 
-    // 2. Inicia a busca de serviços disponíveis
-    $query = Job::with('user.profile')->where('status', 'open');
+        // Inicia a busca trazenda os dados vinculados do perfil de cada usuário
+        $query = Job::with('user.profile')->where('status', 'open');
 
-    // Aplica o filtro se o contratante escolher alguma categoria
-    if ($request->has('categoria') && $request->categoria != '') {
-        $query->where('category', $request->categoria);
+        // Aplica o filtro de categorias caso o contratante selecione alguma
+        if ($request->has('categoria') && $request->categoria != '') {
+            $query->where('category', $request->categoria);
+        }
+
+        // Ordenação estratégica do MVP: Premium primeiro, depois anúncios mais novos
+        $jobs = $query->orderBy('is_premium', 'desc')
+                      ->orderBy('created_at', 'desc')
+                      ->get();
+
+        return view('dashboard', compact('jobs', 'categoriasDisponiveis'));
     }
 
-    // Premium primeiro, depois os anúncios mais recentes
-    $jobs = $query->orderBy('is_premium', 'desc')
-                  ->orderBy('created_at', 'desc')
-                  ->get();
-
-    return view('dashboard', compact('jobs', 'categoriasDisponiveis'));
-}
-
-
     /**
-     * Salva uma nova vaga no banco de dados
+     * Salva um novo anúncio de serviço no banco de dados.
      */
     public function store(Request $request)
     {
@@ -55,6 +54,52 @@ class JobController extends Controller
             'is_premium' => false,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Vaga divulgada com sucesso!');
+        return redirect()->route('profile.custom.edit')->with('success', 'Anúncio de serviço publicado com sucesso!');
+    }
+
+    /**
+     * Salva as alterações de um anúncio de serviço existente.
+     */
+    public function update(Request $request, $id)
+    {
+        // Busca a vaga ou retorna erro 404 caso não encontre
+        $job = Job::findOrFail($id);
+
+        // REGRA DE SEGURANÇA: Bloqueia caso o usuário tente editar o serviço de outra pessoa
+        if ($job->user_id !== Auth::id()) {
+            abort(403, 'Ação não autorizada.');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:2000',
+            'category' => 'required|string|max:100',
+        ]);
+
+        $job->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'category' => $request->category,
+        ]);
+
+        return redirect()->route('profile.custom.edit')->with('success', 'Anúncio de serviço atualizado com sucesso!');
+    }
+
+    /**
+     * Remove um anúncio de serviço de forma definitiva.
+     */
+    public function destroy($id)
+    {
+        $job = Job::findOrFail($id);
+
+        // REGRA DE SEGURANÇA: Bloqueia caso o usuário tente apagar o serviço de outra pessoa
+        if ($job->user_id !== Auth::id()) {
+            abort(403, 'Ação não autorizada.');
+        }
+
+        // Deleta o registro do banco de dados
+        $job->delete();
+
+        return redirect()->route('profile.custom.edit')->with('success', 'Anúncio de serviço removido com sucesso!');
     }
 }

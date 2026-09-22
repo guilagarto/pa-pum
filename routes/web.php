@@ -34,6 +34,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/vagas', [JobController::class, 'store'])->name('jobs.store');
     // Rota para visualizar o perfil público de qualquer profissional (GET)
     Route::get('/prestador/{id}', [ProfileCustomController::class, 'showPublic'])->name('profile.public.show');
+    // Rota que processa a edição de um serviço existente (PUT)
+    Route::put('/vagas/{id}', [JobController::class, 'update'])->name('jobs.update');
+
+    // Rota que processa a exclusão definitiva de um serviço (DELETE)
+    Route::delete('/vagas/{id}', [JobController::class, 'destroy'])->name('jobs.destroy');
+    // Rota que remove uma foto específica do portfólio (DELETE)
+    Route::delete('/perfil/portfolio/{id}', [ProfileCustomController::class, 'destroyImage'])->name('profile.image.destroy');
 
 
     });
