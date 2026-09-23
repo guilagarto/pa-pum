@@ -1,52 +1,80 @@
-<x-guest-layout>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pá-pum | Criar Conta</title>
+    <style>
+        /* CSS Otimizado para Mobile */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        .register-container { background: white; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        
+        .logo-box { text-align: center; margin-bottom: 20px; }
+        .logo-text { font-size: 28px; font-weight: 800; color: #4f46e5; text-decoration: none; }
+        .subtitle { font-size: 14px; color: #64748b; margin-top: 4px; }
+
+        .form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 13px; font-weight: 600; color: #475569; }
+        input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #f8fafc; transition: border-color 0.2s; }
+        input:focus { outline: none; border-color: #4f46e5; background-color: white; }
+
+        .btn-registrar { width: 100%; background-color: #4f46e5; color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
+        .btn-registrar:active { transform: scale(0.98); }
+
+        .footer-links { text-align: center; margin-top: 16px; font-size: 13px; }
+        .footer-links a { color: #4f46e5; text-decoration: none; font-weight: 600; }
+        
+        /* Alertas de validação de erro em vermelho */
+        .error-message { color: #ef4444; font-size: 12px; margin-top: 4px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <div class="logo-box">
+        <a href="/" class="logo-text">Pá-pum</a>
+        <p class="subtitle">Crie sua conta em poucos segundos</p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        <!-- Campo Nome -->
+        <div class="form-group">
+            <label id="label-name" for="name">Nome Completo</label>
+            <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus autocomplete="name">
+            @error('name') <span class="error-message">{{ $message }}</span> @enderror
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <!-- Campo Email -->
+        <div class="form-group">
+            <label id="label-email" for="email">E-mail</label>
+            <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="username">
+            @error('email') <span class="error-message">{{ $message }}</span> @enderror
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <!-- Campo Senha -->
+        <div class="form-group">
+            <label id="label-password" for="password">Senha</label>
+            <input type="password" id="password" name="password" required autocomplete="new-password">
+            @error('password') <span class="error-message">{{ $message }}</span> @enderror
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <!-- Confirmar Senha -->
+        <div class="form-group">
+            <label id="label-password_confirmation" for="password_confirmation">Confirmar Senha</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+        <button type="submit" class="btn-registrar">Cadastrar</button>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+        <div class="footer-links">
+            <a href="{{ route('login') }}">Já tem uma conta? Entrar</a>
         </div>
     </form>
-</x-guest-layout>
+</div>
+
+</body>
+</html>
